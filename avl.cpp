@@ -81,6 +81,15 @@ class TreeNode {
             return node->balance();
         }
 
+        int countNodes() {
+            int count = 1;
+
+            count += (this->left ? this->left->countNodes() : 0);
+            count += (this->right ? this->right->countNodes() : 0);
+
+            return count;
+        }
+
     private:
         int balanceFactor() {
             int hRight = (this->right ? this->right->getHeight() : 0);
@@ -164,18 +173,10 @@ class TreeNode {
 
             return this->balance();
         }
-
-        int countNodes() {
-            int count = 1;
-
-            count += (this->left ? this->left->countNodes() : 0);
-            count += (this->right ? this->right->countNodes() : 0);
-
-            return count;
-        }
 };
 
-int main() {
+map<unsigned int, TreeNode*>
+importTreesFromFile(string file) {
     ifstream in("input.txt");
     int id, link;
     map<unsigned int, TreeNode*> trees;
@@ -194,6 +195,15 @@ int main() {
     }
 
     in.close();
+
+    return trees;
+}
+
+int main() {
+    map<unsigned int, TreeNode*> trees;
+
+    trees = importTreesFromFile("input.txt");
+    cout << trees[0]->countNodes() << endl;
 
     return 0;
 }
