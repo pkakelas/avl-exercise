@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
@@ -21,20 +22,22 @@ class TreeNode {
 
         TreeNode* insert(int value) {
             if (value < this->key) {
-                //cout << "Moving to left kid" << endl;
                 if (!this->left) {
+                    //cout << "Creating left node with parent (" << this->key << ")" << endl;
                     this->left = new TreeNode(value);
                 }
                 else {
+                    //cout << "Moving to left kid" << endl;
                     this->left = this->left->insert(value);
                 }
             }
             else {
-                //cout << "Moving to right kid" << endl;
                 if (!this->right) {
+                    //cout << "Creating right node with parent (" << this->key << ")" << endl;
                     this->right = new TreeNode(value);
                 }
                 else {
+                    //cout << "Moving to right kid" << endl;
                     this->right = this->right->insert(value);
                 }
             }
@@ -42,17 +45,19 @@ class TreeNode {
             return this->balance();
         }
 
-        /**
-        void ReturnNodesKeys() {
-            string keys = "";
+        string exportTreeData(int id) {
             TreeNode* tree = this;
 
+            ostringstream key;
+
+            key << id << " " << this->countNodes();
             while (tree != NULL) {
-                cout << tree->getMin()->key << endl;
+                key << " " << tree->getMin()->key;
                 tree = tree->removeMin();
             }
+
+            return key.str();
         }
-        */
 
         static TreeNode* remove(TreeNode* node, int value) {
             if(value < node->key) {
@@ -177,8 +182,8 @@ class TreeNode {
 
 map<unsigned int, TreeNode*>
 importTreesFromFile(string file) {
-    ifstream in("input.txt");
-    int id, link;
+    ifstream in(file.c_str());
+    unsigned int id, link;
     map<unsigned int, TreeNode*> trees;
 
     while (!in.eof()) {
@@ -200,10 +205,44 @@ importTreesFromFile(string file) {
 }
 
 int main() {
+    ifstream in("commands.txt");
     map<unsigned int, TreeNode*> trees;
+    string command, file;
+    unsigned int x, y;
 
-    trees = importTreesFromFile("input.txt");
-    cout << trees[0]->countNodes() << endl;
+    while (in >> command) {
+        if (command == "READ_DATA") {
+            in >> file;
+            cout << "Reading data from file: " << file << endl;
+            trees = importTreesFromFile(file);
+        }
+        if (command == "INSERT_LINK") {
+            in >> x >> y;
+            cout << "Inserting link from " << x << " to " << y << endl;
+            trees[x] = trees[x]->insert(y);
+        }
+        if (command == "DELETE_LINK") {
+            in >> x >> y;
+            cout << "Deleting link from " << x << " to " << y << endl;
+            trees[x] = TreeNode::remove(trees[x], y);
+        }
+        if (command == "WRITE_INDEX") {
+            in >> file;
+            cout << "Writing data to file: " << file << endl;
+
+            map<unsigned int, TreeNode*>::iterator it;
+            ofstream out(file.c_str());
+
+            for (it = trees.begin(); it != trees.end(); it++) {
+                out << it->second->exportTreeData(it->first) << endl;
+            }
+
+            out.close();
+        }
+
+    }
+
+    in.close();
 
     return 0;
 }
