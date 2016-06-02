@@ -19,116 +19,113 @@ class TreeNode {
             this->right = NULL;
         }
 
-        static int balanceFactor(TreeNode* node) {
-            return getHeight(node->right) - getHeight(node->left);
+        int balanceFactor() {
+            int hRight = (this->right ? this->right->getHeight() : 0);
+            int hLeft = (this->left ? this->left->getHeight() : 0);
+
+
+            //cout << "Balance heights (right - left): " << hRight << " - " << hLeft << " = " << hRight - hLeft << endl;
+            return hRight - hLeft;
         }
 
-        static int getHeight(TreeNode* node) {
-            if (!node) {
-                return 0;
-            }
+        int getHeight() {
+            int hRight = (this->right ? this->right->getHeight() : 0);
+            int hLeft = (this->left ? this->left->getHeight() : 0);
 
-            int leftHeight = getHeight(node->left);
-            int rightHeight = getHeight(node->right);
-
-            int max = leftHeight > rightHeight ? leftHeight : rightHeight;
+            int max = hLeft > hRight ? hLeft : hRight;
 
             return max + 1;
         }
 
-        static TreeNode* rotate(TreeNode* nodeA, string orientation) { //operation: right || left
+        TreeNode* rotate(string orientation) { //operation: right || left
             TreeNode* nodeB = NULL;
 
-            //cout << "Rotating " << orientation << " the node (" << nodeA->key << ")" << endl;
+            //cout << "Rotating " << orientation << " the node (" << this->key << ")" << endl;
 
             if (orientation == "right") {
-                nodeB = nodeA->left;
-                nodeA->left = nodeB->right;
-                nodeB->right = nodeA;
+                nodeB = this->left;
+                this->left = nodeB->right;
+                nodeB->right = this;
             }
             else {
-                nodeB = nodeA->right;
-                nodeA->right = nodeB->left;
-                nodeB->left = nodeA;
+                nodeB = this->right;
+                this->right = nodeB->left;
+                nodeB->left = this;
             }
 
             return nodeB;
         }
 
-		static TreeNode* balance(TreeNode* node) {
+        TreeNode* balance() {
             //cout << endl << "Initiating balance" << endl << "====================" << endl;
 
-            int balance = TreeNode::balanceFactor(node);
+            int balance = this->balanceFactor();
 
             if (balance == 2) {
                 //cout << "Leaning right" << endl;
-                if(TreeNode::balanceFactor(node->right) < 0) {
-                    node->right = TreeNode::rotate(node->right, "right");
+                if (this->right->balanceFactor() < 0) {
+                    this->right = this->right->rotate("right");
                 }
 
-                return TreeNode::rotate(node, "left");
+                return this->rotate("left");
             }
 
             if (balance == -2) {
                 //cout << "Leaning left" << endl;
-                if(balanceFactor(node->left) > 0) {
-                    node->left = TreeNode::rotate(node->left, "left");
+                if (this->left->balanceFactor() > 0) {
+                    this->left = this->left->rotate("left");
                 }
 
-                return TreeNode::rotate(node, "right");
+                return this->rotate("right");
             }
 
-            //cout << "Balanced node with key: " << node->key << endl;
+            //cout << "Balanced this with key: " << this->key << endl;
 
-            return node;
+            return this;
         }
 
-		static TreeNode* insert(TreeNode* node, int value) {
-            if (!node) {
-                //cout << "Node (" << value << ") inserted"<< endl;
-                return new TreeNode(value);
-            }
-			if (value < node->key) {
+        TreeNode* insert(int value) {
+            if (value < this->key) {
                 //cout << "Moving to left kid" << endl;
-                node->left = TreeNode::insert(node->left, value);
-			}
-			else {
+                if (!this->left) {
+                    this->left = new TreeNode(value);
+                }
+                else {
+                    this->left = this->left->insert(value);
+                }
+            }
+            else {
                 //cout << "Moving to right kid" << endl;
-                node->right = TreeNode::insert(node->right, value);
-			}
-
-            return TreeNode::balance(node);
-		}
-
-		static TreeNode* getLeftMost(TreeNode* node) {
-            if (node->left) {
-                return TreeNode::getLeftMost(node->left);
+                if (!this->right) {
+                    this->right = new TreeNode(value);
+                }
+                else {
+                    this->right = this->right->insert(value);
+                }
             }
 
+            return this->balance();
+        }
+
+        TreeNode* getMin() {
+            if (this->left) {
+                return this->left->getMin();
+            }
             //cout << "Got leftMost node. Its key is: " << node->key << endl;
 
-            return node;
-		}
+            return this;
+        }
 
-		static TreeNode* removeLeftMost(TreeNode* node) {
-			if (node->left == 0) { //Check out this if statement
-				return node->right;
+        static TreeNode* removeLeftMost(TreeNode* node) {
+            if (node->left == 0) { //Check out this if statement
+                return node->right;
             }
 
 
-			node->left = TreeNode::removeLeftMost(node->left);
+            node->left = TreeNode::removeLeftMost(node->left);
 
-			return TreeNode::balance(node);
-		}
-
-		int countNodes() {
-            int count = 1;
-
-            count += (this->left ? this->left->countNodes() : 0);
-            count += (this->right ? this->right->countNodes() : 0);
-
-            return count;
-		}
+            return node->balance();
+        }
 
         static TreeNode* remove(TreeNode* node, int value) {
             if(!node) {
@@ -151,15 +148,25 @@ class TreeNode {
                 if (!nodeB) {
                     return nodeA;
                 }
-                TreeNode* min = TreeNode::getLeftMost(nodeB);
+                TreeNode* min = nodeB->getMin();
                 min->right = TreeNode::removeLeftMost(nodeB);
                 min->left = nodeA;
 
-                return TreeNode::balance(min);
+                return min->balance();
             }
 
-            return TreeNode::balance(node);
+            return node->balance();
         }
+
+        int countNodes() {
+            int count = 1;
+
+            count += (this->left ? this->left->countNodes() : 0);
+            count += (this->right ? this->right->countNodes() : 0);
+
+            return count;
+        }
+
 };
 
 int main() {
@@ -172,7 +179,7 @@ int main() {
 
         if (trees.find(id) != trees.end()) {
             //cout << "To already created tree for id: " << id << " adding link: " << link << endl;
-            trees[id] = TreeNode::insert(trees[id], link);
+            trees[id] = trees[id]->insert(link);
         }
         else {
             //cout << "Creating new key with id: " << id << " and adding link: " << link << endl;
