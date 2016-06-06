@@ -89,24 +89,24 @@ class TreeNode {
         int countNodes() {
             int count = 1;
 
-            count += (this->left ? this->left->countNodes() : 0);
-            count += (this->right ? this->right->countNodes() : 0);
+            count += this->left ? this->left->countNodes() : 0;
+            count += this->right ? this->right->countNodes() : 0;
 
             return count;
         }
 
     private:
         int balanceFactor() {
-            int hRight = (this->right ? this->right->getHeight() : 0);
-            int hLeft = (this->left ? this->left->getHeight() : 0);
+            int hRight = this->right ? this->right->getHeight() : 0;
+            int hLeft = this->left ? this->left->getHeight() : 0;
 
             //cout << "Balance heights (right - left): " << hRight << " - " << hLeft << " = " << hRight - hLeft << endl;
             return hRight - hLeft;
         }
 
         int getHeight() {
-            int hRight = (this->right ? this->right->getHeight() : 0);
-            int hLeft = (this->left ? this->left->getHeight() : 0);
+            int hRight = this->right ? this->right->getHeight() : 0;
+            int hLeft = this->left ? this->left->getHeight() : 0;
 
             int max = hLeft > hRight ? hLeft : hRight;
 
