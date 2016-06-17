@@ -14,31 +14,31 @@ class TreeNode {
         int height;
         int key;
 
-        TreeNode(int value) {
-            this->key = value;
+        TreeNode(int key) {
+            this->key = key;
             this->left = NULL;
             this->right = NULL;
         }
 
-        TreeNode* insert(int value) {
-            if (value < this->key) {
+        TreeNode* insert(int key) {
+            if (key < this->key) {
                 if (!this->left) {
                     //cout << "Creating left node with parent (" << this->key << ")" << endl;
-                    this->left = new TreeNode(value);
+                    this->left = new TreeNode(key);
                 }
                 else {
                     //cout << "Moving to left kid" << endl;
-                    this->left = this->left->insert(value);
+                    this->left = this->left->insert(key);
                 }
             }
             else {
                 if (!this->right) {
                     //cout << "Creating right node with parent (" << this->key << ")" << endl;
-                    this->right = new TreeNode(value);
+                    this->right = new TreeNode(key);
                 }
                 else {
                     //cout << "Moving to right kid" << endl;
-                    this->right = this->right->insert(value);
+                    this->right = this->right->insert(key);
                 }
             }
 
@@ -59,18 +59,18 @@ class TreeNode {
             return key.str();
         }
 
-        static TreeNode* remove(TreeNode* node, int value) {
-            if(value < node->key) {
-                node->left = (node->left ? TreeNode::remove(node->left, value) : NULL);
+        static TreeNode* remove(TreeNode* node, int key) {
+            if(key < node->key) {
+                node->left = (node->left ? TreeNode::remove(node->left, key) : NULL);
             }
-            else if (value > node->key) {
-                node->right = (node->right ? TreeNode::remove(node->right, value) : NULL);
+            else if (key > node->key) {
+                node->right = (node->right ? TreeNode::remove(node->right, key) : NULL);
             }
             else {
                 TreeNode* nodeA = node->left; //q = nodeA
                 TreeNode* nodeB = node->right;
 
-                //cout << "Removing node with value " << node->key << endl;
+                //cout << "Removing node with key " << node->key << endl;
                 delete node;
 
                 if (!nodeB) {
