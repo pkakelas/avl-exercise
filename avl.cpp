@@ -7,25 +7,24 @@
 
 using namespace std;
 
-template <class type_a>
 class TreeNode {
     public:
         TreeNode* left;
         TreeNode* right;
         int height;
-        type_a key;
+        int key;
 
-        TreeNode(type_a key) {
+        TreeNode(int key) {
             this->key = key;
             this->left = NULL;
             this->right = NULL;
         }
 
-        TreeNode* insert(type_a key) {
+        TreeNode* insert(int key) {
             if (key < this->key) {
                 if (!this->left) {
                     //cout << "Creating left node with parent (" << this->key << ")" << endl;
-                    this->left = new TreeNode<type_a>(key);
+                    this->left = new TreeNode(key);
                 }
                 else {
                     //cout << "Moving to left kid" << endl;
@@ -35,7 +34,7 @@ class TreeNode {
             else {
                 if (!this->right) {
                     //cout << "Creating right node with parent (" << this->key << ")" << endl;
-                    this->right = new TreeNode<type_a>(key);
+                    this->right = new TreeNode(key);
                 }
                 else {
                     //cout << "Moving to right kid" << endl;
@@ -60,7 +59,7 @@ class TreeNode {
             return key.str();
         }
 
-        static TreeNode* remove(TreeNode* node, type_a key) {
+        static TreeNode* remove(TreeNode* node, int key) {
             if(key < node->key) {
                 node->left = (node->left ? TreeNode::remove(node->left, key) : NULL);
             }
@@ -180,11 +179,12 @@ class TreeNode {
             return this->balance();
         }
 };
-map<unsigned int, TreeNode<int>*>
+
+map<unsigned int, TreeNode*>
 importTreesFromFile(string file) {
     ifstream in(file.c_str());
     unsigned int id, link;
-    map<unsigned int, TreeNode<int>*> trees;
+    map<unsigned int, TreeNode*> trees;
 
     while (!in.eof()) {
         in >> id >> link;
@@ -195,7 +195,7 @@ importTreesFromFile(string file) {
         }
         else {
             //cout << "Creating new key with id: " << id << " and adding link: " << link << endl;
-            trees[id] = new TreeNode<int>(link);
+            trees[id] = new TreeNode(link);
         }
     }
 
@@ -206,7 +206,7 @@ importTreesFromFile(string file) {
 
 int main() {
     ifstream in("commands.txt");
-    map<unsigned int, TreeNode<int>*> trees;
+    map<unsigned int, TreeNode*> trees;
     string command, file;
     unsigned int x, y;
 
@@ -224,13 +224,13 @@ int main() {
         if (command == "DELETE_LINK") {
             in >> x >> y;
             cout << "Deleting link from " << x << " to " << y << endl;
-            trees[x] = TreeNode<int>::remove(trees[x], y);
+            trees[x] = TreeNode::remove(trees[x], y);
         }
         if (command == "WRITE_INDEX") {
             in >> file;
             cout << "Writing data to file: " << file << endl;
 
-            map<unsigned int, TreeNode<int>*>::iterator it;
+            map<unsigned int, TreeNode*>::iterator it;
             ofstream out(file.c_str());
 
             for (it = trees.begin(); it != trees.end(); it++) {
