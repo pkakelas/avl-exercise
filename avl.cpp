@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <string>
 #include <map>
@@ -18,6 +20,7 @@ class TreeNode {
         TreeNode(int key, TreeNode* value = NULL) {
             this->key = key;
             this->value = value;
+            this->height = 1;
             this->left = NULL;
             this->right = NULL;
         }
@@ -138,11 +141,12 @@ class TreeNode {
 
     private:
         int balanceFactor() {
-            int hRight = this->right ? this->right->getHeight() : 0;
-            int hLeft = this->left ? this->left->getHeight() : 0;
+            int leftHeight = (this->left ? this->left->height : 0);
+            int rightHeight = (this->right ? this->right->height : 0);
 
-            //cout << "Balance heights (right - left): " << hRight << " - " << hLeft << " = " << hRight - hLeft << endl;
-            return hRight - hLeft;
+            this->height = max(leftHeight, rightHeight) + 1;
+
+            return rightHeight - leftHeight;
         }
 
         int getHeight() {
